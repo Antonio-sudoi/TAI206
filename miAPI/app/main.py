@@ -48,3 +48,27 @@ async def consultaOp(id: Optional[int] = None):
         return {"Mensaje": "Usuario no encontrado"}
     else:
         return {"Aviso": "No se proporcionó Id"}
+    
+# POST (CREAR) 
+@app.post("/v1/usuarios_op/", tags=["Operaciones CRUD"])
+async def crear_usuario(usuario: dict):
+    usuarios.append(usuario)
+    return {"mensaje": "Usuario creado con éxito", "data": usuario}
+
+# PUT (ACTUALIZAR)
+@app.put("/v1/usuarios_op/{usuario_id}", tags=["Operaciones CRUD"])
+async def actualizar_usuario(usuario_id: int, usuario: dict):
+    for i, u in enumerate(usuarios):
+        if u["id"] == usuario_id:
+            usuarios[i] = usuario
+            return {"mensaje": f"Usuario {usuario_id} actualizado con éxito", "data": usuario}
+    return {"mensaje": f"Usuario {usuario_id} no encontrado"}
+
+# DELETE (BORRAR)
+@app.delete("/v1/usuarios_op/{usuario_id}", tags=["Operaciones CRUD"])
+async def eliminar_usuario(usuario_id: int):
+    for i, u in enumerate(usuarios):
+        if u["id"] == usuario_id:
+            usuarios.pop(i)
+            return {"mensaje": f"Usuario {usuario_id} eliminado con éxito"}
+    return {"mensaje": f"Usuario {usuario_id} no encontrado"}
