@@ -1,8 +1,11 @@
 #importaciones
 from typing import Optional
-from fastapi import FastAPI ,HTTPException, status
+from fastapi import FastAPI ,HTTPException, status, Depends #Depends
 import asyncio
 from pydantic import BaseModel, Field
+from fastapi.security import HTTPBasic, HTTPBasicCredentials #HTTPBasic, HTTPBasicCredentials
+import secrets #import secrets
+
 
 
 
@@ -25,6 +28,26 @@ class UsuarioBase(BaseModel):
     id:int = Field(..., gt=0, description="Identificador de usuario", example="1")
     nombre:str = Field(..., min_length=3, max_length=50, description="Nombre del usuario")
     edad:int = Field(..., ge=0, le=121, description= "Edad valida entre 0 y 121")
+
+####################################
+#Seguridad con HTTP Basic
+####################################
+security= HTTPBasic()
+
+def verificar_Peticion(credentials: HTTPBasicCredentials=Depends(security)):
+    usuarioAuth= secrets.compare_digest(credentials.username, "Antonio")
+    contraAuth= secrets.compare_digest(credentials.password, "1234")
+
+    if not(usuarioAuth and contraAuth):
+        raise HTTPException(
+            status_code= status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales no validas",
+        )
+    return credentials.username
+
+
+
+
 
 
 #Endpoints
@@ -81,11 +104,11 @@ async def actualizar_usuario(usuario_id: int, usuario: dict):
 
 # DELETE (BORRAR)
 @app.delete("/v1/usuarios_op/{usuario_id}", tags=["Operaciones CRUD"])
-async def eliminar_usuario(usuario_id: int):
+async def eliminar_usuario(usuario_id: int, usuarioAuth:str=Depends(verificar_Peticion)):
     for i, u in enumerate(usuarios):
         if u["id"] == usuario_id:
             usuarios.pop(i)
-            return {"mensaje": f"Usuario {usuario_id} eliminado con éxito"}
+            return {"mensaje": f"Usuario {usuario_id} eliminado por {usuarioAuth}"}
     return {"mensaje": f"Usuario {usuario_id} no encontrado"}
 
 
