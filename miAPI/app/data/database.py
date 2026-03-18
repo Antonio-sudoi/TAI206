@@ -1,0 +1,10 @@
+usuarios=[
+    {"id":1,"Nombre":"Antonio","edad":20},
+    {"id":2,"Nombre":"Estonia","edad":15},
+    {"id":3,"Nombre":"Eduardo","edad":25},
+]
+usuarios=[
+    {"id":1,"Nombre":"Antonio","edad":20},
+    {"id":2,"Nombre":"Estonia","edad":15},
+    {"id":3,"Nombre":"Eduardo","edad":25},
+]
