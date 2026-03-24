@@ -18,7 +18,7 @@ sesionLocal= sessionmaker(autocommit= False, autoflush= False, bind= engine)
 Base= declarative_base()
 
 #5.- funcion para el manejo en session en los request
-def get_bd():
+def get_db():
     db= sesionLocal()
     try:
         yield db
