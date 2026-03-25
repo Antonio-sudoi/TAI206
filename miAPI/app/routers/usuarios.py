@@ -12,52 +12,68 @@ router= APIRouter(
     tags= ["CRUD HTTP"]
 )
 
-@router.get("/")
+#====================== - Get(todos) ======================
+@router.get("/E1")
 async def leer_usuarios(db:Session= Depends(get_db)):
-
     consultausuarios=db.query(usuarioDB).all()
-
     return{
         "status":"200",
         "total": len(consultausuarios),
         "usuarios": consultausuarios
     }
 
-
-
-# POST (CREAR) 
-@router.post("/", status_code=status.HTTP_201_CREATED)
-async def crear_usuario(usuarioP:UsuarioBase, db:Session= Depends(get_db)):
-
-    nuevoUsuario=usuarioDB(nombre= usuarioP.nombre,edad= usuarioP.edad)
-
+#======================- Post ======================
+@router.post("/E2", status_code=status.HTTP_201_CREATED)
+async def crear_usuario(usuarioP: UsuarioBase, db: Session = Depends(get_db)):
+    nuevoUsuario = usuarioDB(nombre=usuarioP.nombre, edad=usuarioP.edad)
     db.add(nuevoUsuario)
     db.commit()
     db.refresh(nuevoUsuario)
-
-    return{
-        "mensaje":"usuatio agregado",
-        "usuario":nuevoUsuario
+    return {
+        "mensaje": "Usuario agregado",
+        "usuario": nuevoUsuario
     }
 
+#======================- Get (id) ======================
+@router.get("/E3")
+async def leer_usu_id(id: int, db: Session = Depends(get_db)):
+    usuario = db.query(usuarioDB).filter(usuarioDB.id == id).first()
+    return {
+        "usuario no encontrado": usuario
+    }
 
-# PUT (ACTUALIZAR)
-@router.put("/")
-async def actualizar_usuario(usuario_id: int, usuario: dict):
-    for i, u in enumerate(usuarios):
-        if u["id"] == usuario_id:
-            usuarios[i] = usuario
-            return {"mensaje": f"Usuario {usuario_id} actualizado con éxito", "data": usuario}
-    return {"mensaje": f"Usuario {usuario_id} no encontrado"}
+#======================- Put ======================
+@router.put("/E4")
+async def act_usu(id: int, usuarioP: UsuarioBase, db: Session = Depends(get_db)):
+    usuario = db.query(usuarioDB).filter(usuarioDB.id == id).first()
+    usuario.nombre = usuarioP.nombre
+    usuario.edad = usuarioP.edad
+    db.commit()
+    db.refresh(usuario)
+    return {
+        "mensaje": "usuario actualizado",
+        "usuario": usuario
+    }
 
+#======================- Patch ======================
+@router.patch("/E5")
+async def act_usu_parcial(id: int, usuarioP: UsuarioBase, db: Session = Depends(get_db)):
+    usuario = db.query(usuarioDB).filter(usuarioDB.id == id).first() 
+    usuario.nombre = usuarioP.nombre
+    usuario.edad = usuarioP.edad
+    db.commit()
+    db.refresh(usuario)
+    return {
+        "mensaje": "usuario actualizado patch ",
+        "usuario": usuario
+    }
 
-# DELETE (BORRAR)
-@router.delete("/{id}", status_code=status.HTTP_200_OK)
-async def eliminar_usuario(usuario_id: int, usuarioAuth:str=Depends(verificar_Peticion)):
-    for i, u in enumerate(usuarios):
-        if u["id"] == usuario_id:
-            usuarios.pop(i)
-            return {"mensaje": f"Usuario {usuario_id} eliminado por {usuarioAuth}"}
-    return {"mensaje": f"Usuario {usuario_id} no encontrado"}
-
-
+#======================- Delete ======================
+@router.delete("/E6")
+async def eliminar_usu(id: int, db: Session = Depends(get_db)):
+    usuario = db.query(usuarioDB).filter(usuarioDB.id == id).first()
+    db.delete(usuario)
+    db.commit()
+    return {
+        "mensaje": "usuario eliminado"
+    }
